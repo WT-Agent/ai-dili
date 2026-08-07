@@ -4,110 +4,46 @@
     <div v-if="copied" class="top-success-toast">
       复制成功
     </div>
-    <!-- 常驻悬浮分享按钮 (H5 / 移动端与桌面端通用) -->
-    <button class="floating-share-btn" @click="showShareGuide = true">
-      <svg class="share-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <circle cx="18" cy="5" r="3"></circle>
-        <circle cx="6" cy="12" r="3"></circle>
-        <circle cx="18" cy="19" r="3"></circle>
-        <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line>
-        <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line>
-      </svg>
-      <span>分享地理景观工具</span>
-    </button>
-
     <header>
       <h1>{{ appTitle }}</h1>
-      <p>自然地理地貌解析 · 区域气象气候水文 · 人文历史地理风情 · 旅游路线研学考点</p>
+      <p>智能 AI 实战引擎 · 解决高效生产力需求</p>
     </header>
 
-    <!-- 动态广播轮播 -->
+    <!-- 活跃动态 -->
     <UserTicker />
 
-    <!-- 核心操作区卡片 -->
+    <!-- 核心卡片 -->
     <main ref="inputCardRef" class="glass-card input-group">
-      <!-- 地理解析类型选择 -->
       <div class="selector-group">
-        <label class="selector-label">选择地理解析与考察类型</label>
+        <label class="selector-label">输入您要生成的内容或要求</label>
+        <textarea 
+          v-model="userInput" 
+          placeholder="比如：帮我写一段表达工作辛苦但充满希望的总结..."
+        ></textarea>
+      </div>
+
+      <div class="selector-group">
+        <label class="selector-label">选择生成风格</label>
         <div class="style-selector">
           <button 
-            v-for="gtype in geoTypeOptions" 
-            :key="gtype.value"
+            v-for="style in styleOptions" 
+            :key="style.value"
             class="style-option"
-            :class="{ active: activeGeoType === gtype.value }"
-            @click="activeGeoType = gtype.value"
+            :class="{ active: activeStyle === style.value }"
+            @click="activeStyle = style.value"
           >
-            {{ gtype.label }}
+            {{ style.label }}
           </button>
         </div>
       </div>
 
-      <!-- 地理区域与解析视角 -->
-      <div class="options-row" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
-        <div class="selector-group">
-          <label class="selector-label">地理区域划分</label>
-          <div class="style-selector">
-            <button 
-              v-for="region in geoRegionOptions" 
-              :key="region"
-              class="style-option"
-              :class="{ active: selectedGeoRegion === region }"
-              @click="selectedGeoRegion = region"
-            >
-              {{ region }}
-            </button>
-          </div>
-        </div>
-
-        <div class="selector-group">
-          <label class="selector-label">解析视角侧重</label>
-          <div class="style-selector">
-            <button 
-              v-for="perspective in perspectiveOptions" 
-              :key="perspective"
-              class="style-option"
-              :class="{ active: selectedPerspective === perspective }"
-              @click="selectedPerspective = perspective"
-            >
-              {{ perspective }}
-            </button>
-          </div>
-        </div>
-      </div>
-
-      <!-- 地理名词/考点需求输入框 -->
-      <div class="selector-group">
-        <div style="display: flex; justify-content: space-between; align-items: center;">
-          <label class="selector-label">输入地理名词、景观现象、区域名称或高考考点题目</label>
-          <div style="display: flex; gap: 0.5rem;">
-            <button v-if="userInput" class="text-link-btn" @click="userInput = ''">清空输入</button>
-            <button class="text-link-btn" @click="showGeoGuideModal = true">成因分析与术语指南</button>
-          </div>
-        </div>
-        <textarea 
-          v-model="userInput" 
-          placeholder="请输入您需要解析的地理名称、景观、地貌现象或考点题目...（例如：分析云贵高原喀斯特溶洞与石林地貌的岩性与侵蚀机制，或分析青藏高原隆升对东亚季风气候形成的影响。）"
-          style="min-height: 130px;"
-        ></textarea>
-        <div style="display: flex; justify-content: space-between; font-size: 0.75rem; color: var(--text-secondary);">
-          <span>字符数: {{ userInput.length }} 字</span>
-          <span>建议包含板块构造、外力作用、气象水文或人地关系要素</span>
-        </div>
-      </div>
-
-      <!-- 操作按钮区 -->
-      <div style="display: flex; gap: 0.75rem;">
-        <button 
-          class="action-btn" 
-          :disabled="loading || !userInput.trim()"
-          @click="handleGenerate"
-        >
-          {{ loading ? '正在严谨考察与生成地理学术报告中...' : '开始生成地理深度解析报告' }}
-        </button>
-        <button class="icon-btn" style="padding: 0 1rem; border-radius: 10px;" @click="toggleHistoryDrawer">
-          历史解析 ({{ historyList.length }})
-        </button>
-      </div>
+      <button 
+        class="action-btn" 
+        :disabled="loading || !userInput.trim()"
+        @click="handleGenerate"
+      >
+        {{ loading ? '正在飞速生成中...' : '开始一键生成' }}
+      </button>
 
       <!-- 异常提示 -->
       <div v-if="errorMsg" style="color: var(--accent-color); font-size: 0.85rem; text-align: center; margin-top: 0.5rem;">
@@ -118,140 +54,37 @@
     <!-- 生成结果卡片 -->
     <section v-if="result || loading" class="glass-card">
       <div class="result-header">
-        <span class="result-title">地理知识与人文景观深度解析报告</span>
+        <span class="result-title">生成结果</span>
         <div class="button-actions">
-          <button v-if="result" class="icon-btn" @click="copyText">
-            {{ copied ? '已复制解析全文' : '复制地理报告' }}
+          <button v-if="result && !isImageProject" class="icon-btn" @click="copyText">
+            {{ copied ? '已复制' : '复制文案' }}
           </button>
-          <button v-if="result" class="icon-btn" @click="resetResult">
-            重置
-          </button>
+          <a v-if="result && isImageProject" :href="result" target="_blank" download class="icon-btn" style="text-decoration: none;">
+            查看原图
+          </a>
         </div>
       </div>
 
       <!-- 加载中骨架屏 -->
       <div v-if="loading" class="skeleton">
-        <div class="skeleton-line" style="width: 85%"></div>
+        <div class="skeleton-line" style="width: 80%"></div>
         <div class="skeleton-line" style="width: 95%"></div>
-        <div class="skeleton-line" style="width: 70%"></div>
-        <div class="skeleton-line" style="width: 90%"></div>
         <div class="skeleton-line" style="width: 60%"></div>
       </div>
 
       <!-- 渲染结果 -->
       <div v-else-if="result">
-        <!-- AI 共识打分可视化看板 -->
-        <div v-if="aiScores" class="scores-container" style="margin-bottom: 1.5rem; padding: 1.25rem; background: rgba(0,0,0,0.25); border-radius: 12px; border: 1px solid rgba(255,255,255,0.06);">
-          <div style="font-weight: 700; font-size: 0.95rem; margin-bottom: 1rem; color: #a5b4fc; display: flex; justify-content: space-between; align-items: center;">
-            <span>AI 地理考据与景观学术质量评估看板</span>
-            <span style="font-size: 0.8rem; font-weight: normal; color: var(--text-secondary);">综合考据分: {{ getAverageScoreFromMap(aiScores) }} / 5.0</span>
-          </div>
-          <div class="metrics-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 1rem;">
-            <div v-for="metric in metricsList" :key="metric.key" class="metric-item">
-              <div style="display: flex; justify-content: space-between; font-size: 0.8rem; margin-bottom: 0.3rem;">
-                <span style="color: var(--text-secondary);">{{ metric.label }}</span>
-                <span style="font-weight: bold; color: var(--accent-color);">{{ aiScores[metric.key] || 4 }} / 5</span>
-              </div>
-              <div class="bar-bg" style="height: 6px; background: rgba(255,255,255,0.08); border-radius: 3px; overflow: hidden;">
-                <div class="bar-fill" :style="{ width: ((aiScores[metric.key] || 4) * 20) + '%', background: 'var(--primary-gradient)', height: '100%', borderRadius: '3px', transition: 'width 0.5s ease' }"></div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="output-content">{{ displayResultText }}</div>
+        <img v-if="isImageProject" :src="result" alt="Generated visual" class="image-output" />
+        <div v-else class="output-content">{{ result }}</div>
       </div>
     </section>
 
-    <!-- 历史记录面板 -->
-    <section v-if="showHistory" class="glass-card" style="margin-top: 1rem;">
-      <div class="result-header">
-        <span class="result-title">本地地理解析历史记录</span>
-        <button class="icon-btn" @click="showHistory = false">关闭记录</button>
-      </div>
-
-      <div v-if="historyList.length === 0" style="text-align: center; color: var(--text-secondary); padding: 1.5rem; font-size: 0.85rem;">
-        暂无历史地理解析记录，开始生成第一个案例吧！
-      </div>
-
-      <div v-else class="history-grid" style="display: flex; flex-direction: column; gap: 0.75rem; max-height: 320px; overflow-y: auto;">
-        <div v-for="item in historyList" :key="item.id" class="history-item" style="padding: 1rem; background: rgba(0,0,0,0.2); border-radius: 10px; border: 1px solid var(--card-border);">
-          <div style="display: flex; justify-content: space-between; font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 0.4rem;">
-            <span>{{ item.timestamp }} · [{{ item.geoType }} / {{ item.geoRegion }}]</span>
-            <span style="color: var(--primary-color);">评分: {{ getAverageScore(item) }}</span>
-          </div>
-          <div style="font-size: 0.85rem; font-weight: bold; margin-bottom: 0.4rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--text-primary);">
-            关键词: {{ item.input }}
-          </div>
-          <div style="display: flex; gap: 0.5rem;">
-            <button class="icon-btn" style="font-size: 0.75rem;" @click="applyHistory(item)">套用提示词</button>
-            <button class="icon-btn" style="font-size: 0.75rem;" @click="viewHistoryOutput(item)">查看解析全文</button>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- 地理考察模版 Showcase -->
+    <!-- PC端 Nomads 案例与模版展示 -->
     <NomadsShowcase
+      :app-title="appTitle"
+      :is-image="isImageProject"
       @apply-template="handleApplyTemplate"
     />
-
-    <!-- 地理成因与术语指南 Modal -->
-    <div v-if="showGeoGuideModal" class="modal-overlay" @click.self="showGeoGuideModal = false">
-      <div class="modal-content" style="max-width: 480px;">
-        <h3>地理学核心成因分析与答题术语指南</h3>
-        <p style="text-align: left; font-size: 0.825rem; margin-bottom: 1rem; color: var(--text-secondary);">
-          确保自然与人文地理分析严谨、符合学术及高考答题规范：
-        </p>
-        <div class="modal-scroll-area" style="text-align: left; font-size: 0.825rem;">
-          <div v-for="(rule, idx) in geoGuideRules" :key="idx" style="margin-bottom: 0.75rem; padding: 0.5rem 0.75rem; background: rgba(255,255,255,0.03); border-radius: 8px; border: 1px solid rgba(255,255,255,0.05);">
-            <div style="color: var(--accent-color); font-weight: bold; margin-bottom: 0.2rem;">{{ rule.title }}</div>
-            <div style="color: var(--text-primary); margin-bottom: 0.2rem;">规范要求: {{ rule.req }}</div>
-            <div style="color: var(--text-secondary); font-size: 0.775rem;">避坑指南: {{ rule.avoid }}</div>
-          </div>
-        </div>
-        <button class="modal-btn" style="margin-top: 1rem;" @click="showGeoGuideModal = false">关闭</button>
-      </div>
-    </div>
-
-    <!-- 微信 H5 悬浮分享引导 Modal -->
-    <div v-if="showShareGuide" class="modal-overlay" @click.self="showShareGuide = false">
-      <div class="modal-content">
-        <h3>分享地理知识与人文景观专家</h3>
-        <p>扫码关注或将链接转发给地理研学爱好者、高考考生与教研团队，探索精彩地理世界。</p>
-        
-        <div class="qr-code-placeholder">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100%" height="100%">
-            <rect width="100" height="100" fill="white"/>
-            <rect x="5" y="5" width="25" height="25" fill="#110e24"/>
-            <rect x="9" y="9" width="17" height="17" fill="white"/>
-            <rect x="13" y="13" width="9" height="9" fill="#110e24"/>
-            <rect x="70" y="5" width="25" height="25" fill="#110e24"/>
-            <rect x="74" y="9" width="17" height="17" fill="white"/>
-            <rect x="78" y="13" width="9" height="9" fill="#110e24"/>
-            <rect x="5" y="70" width="25" height="25" fill="#110e24"/>
-            <rect x="9" y="74" width="17" height="17" fill="white"/>
-            <rect x="13" y="78" width="9" height="9" fill="#110e24"/>
-            <rect x="35" y="10" width="8" height="8" fill="#110e24"/>
-            <rect x="48" y="5" width="6" height="12" fill="#110e24"/>
-            <rect x="60" y="15" width="5" height="5" fill="#110e24"/>
-            <rect x="35" y="35" width="10" height="10" fill="#110e24"/>
-            <rect x="50" y="45" width="15" height="8" fill="#110e24"/>
-            <rect x="40" y="70" width="8" height="16" fill="#110e24"/>
-            <rect x="55" y="65" width="10" height="10" fill="#110e24"/>
-            <rect x="75" y="40" width="12" height="12" fill="#110e24"/>
-            <rect x="75" y="75" width="15" height="15" fill="#110e24"/>
-            <rect x="45" y="80" width="8" height="8" fill="#110e24"/>
-          </svg>
-        </div>
-
-        <div style="font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 1.5rem;">
-          微信号: <span style="color: var(--primary-color); font-weight: bold;">{{ wechatId }}</span>
-        </div>
-
-        <button class="modal-btn" @click="showShareGuide = false">关闭</button>
-      </div>
-    </div>
 
     <!-- 底部隐私与服务条款链接 -->
     <footer class="footer-links">
@@ -268,8 +101,8 @@
       <div class="modal-content">
         <h3>Privacy Policy</h3>
         <div class="modal-text-content modal-scroll-area">
-          <p>我们高度重视地理考察与教研数据隐私。您在本工具中输入的地理名词、区域材料及考察课题仅用于大模型实时分析生成，系统不会在云端长期保存或公开。</p>
-          <p>为了保障免费使用额度，本应用会在您的浏览器本地（localStorage）记录试用次数与解锁状态。</p>
+          <p>我们非常重视您的隐私。您在本应用中输入的所有文本或图像提示词仅用于实时大模型生成，我们不会在服务器端进行永久存储或记录。</p>
+          <p>为了记录您的免费额度，本应用会在您的浏览器本地（localStorage）记录试用次数与解锁状态。</p>
         </div>
         <button class="modal-btn" @click="showPrivacy = false">关闭</button>
       </div>
@@ -280,14 +113,14 @@
       <div class="modal-content">
         <h3>Terms of Service</h3>
         <div class="modal-text-content modal-scroll-area">
-          <p>欢迎使用网腾无限 AI 地理知识与人文景观专家。本工具生成的地理成因、气象数据及研学路线供学术研究、教学备课及旅行规划参考。</p>
-          <p>涉及野外考察、地质灾害预警及正式测绘数据时，请结合国家权威测绘地理信息部门数据人工核实。</p>
+          <p>欢迎使用我们的 AI 微应用服务。使用本应用即代表您同意并承诺遵守当地有关人工智能生成内容（AIGC）的法律法规。</p>
+          <p>所有生成结果均由 AI 模型计算产生，本应用不对生成内容的准确性、完整性及合法性承担任何直接或间接法律责任。</p>
         </div>
         <button class="modal-btn" @click="showTerms = false">关闭</button>
       </div>
     </div>
 
-    <!-- 联系我们弹窗 -->
+<!-- 联系我们弹窗 -->
     <div v-if="showContact" class="modal-overlay" @click.self="showContact = false">
       <div class="modal-content contact-modal-content">
         <h3>Contact Us</h3>
@@ -327,8 +160,13 @@ import appConfig from './config.json';
 import weixinImg from '../asset/weixin.png';
 import dingtalkImg from '../asset/dingtalk.png';
 
-// 配置参数
-const appTitle = ref(appConfig.title || '网腾无限AI - 地理知识与人文景观专家');
+onMounted(() => {
+  const savedTheme = localStorage.getItem('portal_theme') || 'dark';
+  document.documentElement.setAttribute('data-theme', savedTheme);
+});
+
+// 读取动态配置文件配置
+const appTitle = ref(appConfig.title || 'AI微应用');
 const wechatId = ref(appConfig.wechatId || 'ai_wuxian_xyz');
 const promptTopic = ref(appConfig.promptTopic || '');
 
@@ -338,15 +176,12 @@ const loading = ref(false);
 const errorMsg = ref('');
 const result = ref('');
 const copied = ref(false);
-
 const showFission = ref(false);
 const showPrivacy = ref(false);
 const showTerms = ref(false);
 const showContact = ref(false);
-const showShareGuide = ref(false);
-const showGeoGuideModal = ref(false);
 
-// 解析 Cookie
+// 解析 Cookie 辅助函数
 const getCookie = (name: string): string | null => {
   const nameEQ = name + "=";
   const ca = document.cookie.split(';');
@@ -358,147 +193,38 @@ const getCookie = (name: string): string | null => {
   return null;
 };
 
-// 用户登录状态
+// SSO 用户状态
 const userToken = ref(getCookie('wuxian_session'));
 const isLoggedIn = computed(() => !!userToken.value);
 const authUsesCount = ref(parseInt(localStorage.getItem('auth_uses') || '0', 10));
 
-// 地理解析类型预设
-const geoTypeOptions = [
-  { label: '自然地理地貌与构造解析', value: '自然地理地貌与构造解析' },
-  { label: '人文地理与城市历史变迁', value: '人文地理与城市历史变迁' },
-  { label: '旅游地理与自驾研学路线', value: '旅游地理与自驾研学路线' },
-  { label: '高考地理考点与综合题拆解', value: '高考地理考点与综合题拆解' }
-];
-const activeGeoType = ref(geoTypeOptions[0].value);
-
-// 地理区域与解析视角
-const geoRegionOptions = ['中国地理', '亚洲地理', '欧洲地理', '美洲地理', '极地与大洋'];
-const selectedGeoRegion = ref('中国地理');
-
-const perspectiveOptions = ['自然科学视角', '人文历史视角', '高考教研视角'];
-const selectedPerspective = ref('自然科学视角');
-
-// 评估指标列表
-const metricsList = [
-  { key: 'geographicalAccuracy', label: '地理考据准确度' },
-  { key: 'landscapeRichness', label: '景观文化丰富度' },
-  { key: 'climaticDataRigor', label: '气象数据严谨度' },
-  { key: 'popularScienceClarity', label: '科普表达通俗度' },
-  { key: 'travelValueIndex', label: '研学路线实用值' }
-];
-
-const aiScores = ref<Record<string, number> | null>(null);
-
-// 历史记录定义
-interface HistoryItem {
-  id: string;
-  timestamp: string;
-  geoType: string;
-  geoRegion: string;
-  input: string;
-  aiScores: Record<string, number> | null;
-  output: string;
-}
-
-const historyList = ref<HistoryItem[]>([]);
-const showHistory = ref(false);
-
-// 地理分析指南规则
-const geoGuideRules = [
-  { title: '地貌成因双向分析', req: '明确内力作用（造山/火山/板块）与外力作用（风化/侵蚀/搬运/堆积）的协同影响', avoid: '切忌混淆流水侵蚀与风力堆积作用' },
-  { title: '气候水文系统联动', req: '准确表述纬度、海陆位置、地形及洋流对气温与降水分布的综合作用', avoid: '避免忽略高山地形对局部微气候的屏障效应' },
-  { title: '人文区位因子剖析', req: '结合自然资源、交通枢纽、人口聚落及历史演进综合评价人地关系', avoid: '避免脱离自然地理基底空谈城市与产业分布' }
-];
-
-// 计算纯结果文本 (剔除打分标签 [DILI_SCORES])
-const displayResultText = computed(() => {
-  if (!result.value) return '';
-  return result.value.replace(/\[DILI_SCORES\][\s\S]*?\[\/DILI_SCORES\]/g, '').trim();
+// 判断当前项目是文本类还是图像/多模态类
+const isImageProject = computed(() => {
+  return appConfig.type === 'image';
 });
 
-// 解析打分标签
-const parseAiScores = (rawText: string) => {
-  const match = rawText.match(/\[DILI_SCORES\](.*?)\[\/DILI_SCORES\]/);
-  if (!match) return null;
-  const content = match[1];
-  const scoresObj: Record<string, number> = {};
-  content.split(',').forEach(item => {
-    const [key, val] = item.split(':');
-    if (key && val) {
-      scoresObj[key.trim()] = parseInt(val.trim(), 10) || 4;
-    }
-  });
-  return Object.keys(scoresObj).length > 0 ? scoresObj : null;
-};
-
-// 计算平均分
-const getAverageScoreFromMap = (scores: Record<string, number>) => {
-  const keys = Object.keys(scores);
-  if (keys.length === 0) return '4.5';
-  const sum = keys.reduce((acc, k) => acc + (scores[k] || 4), 0);
-  return (sum / keys.length).toFixed(1);
-};
-
-const getAverageScore = (item: HistoryItem) => {
-  if (!item.aiScores) return '4.5';
-  return getAverageScoreFromMap(item.aiScores);
-};
-
-// 本地历史记录读取与保存
-const loadHistory = () => {
-  try {
-    const raw = localStorage.getItem('dili_history_records');
-    historyList.value = raw ? JSON.parse(raw) : [];
-  } catch (e) {
-    historyList.value = [];
+// 根据生成类别提供不同的风格预设
+const styleOptions = computed(() => {
+  if (isImageProject.value) {
+    return [
+      { label: '写真照片', value: '<photography>' },
+      { label: '卡通动漫', value: '<anime>' },
+      { label: '水彩画卷', value: '<watercolor>' },
+      { label: '插画艺术', value: '<illustration>' },
+    ];
+  } else {
+    return [
+      { label: '专业干练', value: '专业干练，结果导向' },
+      { label: '高情商说辞', value: '高情商，委婉，有情调' },
+      { label: '幽默风趣', value: '幽默风趣，形象生动' },
+      { label: '严谨学术', value: '严谨学术，条理清晰' },
+    ];
   }
-};
+});
 
-const saveHistory = () => {
-  localStorage.setItem('dili_history_records', JSON.stringify(historyList.value));
-};
+const activeStyle = ref(styleOptions.value[0].value);
 
-const addHistoryRecord = () => {
-  const newItem: HistoryItem = {
-    id: Date.now().toString(),
-    timestamp: new Date().toLocaleString(),
-    geoType: activeGeoType.value,
-    geoRegion: selectedGeoRegion.value,
-    input: userInput.value,
-    aiScores: aiScores.value,
-    output: result.value
-  };
-  historyList.value.unshift(newItem);
-  if (historyList.value.length > 20) {
-    historyList.value = historyList.value.slice(0, 20);
-  }
-  saveHistory();
-};
-
-const toggleHistoryDrawer = () => {
-  loadHistory();
-  showHistory.value = !showHistory.value;
-};
-
-const applyHistory = (item: HistoryItem) => {
-  userInput.value = item.input;
-  activeGeoType.value = item.geoType;
-  selectedGeoRegion.value = item.geoRegion;
-  showHistory.value = false;
-  if (inputCardRef.value) {
-    inputCardRef.value.scrollIntoView({ behavior: 'smooth', block: 'center' });
-  }
-};
-
-const viewHistoryOutput = (item: HistoryItem) => {
-  userInput.value = item.input;
-  result.value = item.output;
-  aiScores.value = item.aiScores;
-  showHistory.value = false;
-};
-
-// 限制与额度检测
+// 判断是否达到免费次数上限
 const isLimitReached = computed(() => {
   if (isLoggedIn.value) {
     return authUsesCount.value >= 15;
@@ -508,6 +234,7 @@ const isLimitReached = computed(() => {
   return uses >= 3 && !shared;
 });
 
+// 获取 API 请求端点
 const apiEndpoint = import.meta.env.DEV
   ? '/api/local/generate'
   : (import.meta.env.VITE_API_ENDPOINT || 'https://api.wuxian.xyz/api/v1/generate');
@@ -521,7 +248,6 @@ const handleGenerate = async () => {
   loading.value = true;
   errorMsg.value = '';
   result.value = '';
-  aiScores.value = null;
 
   try {
     const response = await fetch(apiEndpoint, {
@@ -531,9 +257,9 @@ const handleGenerate = async () => {
       },
       credentials: 'include',
       body: JSON.stringify({
-        taskType: 'text',
-        prompt: `任务指导: ${promptTopic.value}\n【解析类型】: ${activeGeoType.value}\n【地理区域】: ${selectedGeoRegion.value}\n【解析视角】: ${selectedPerspective.value}\n【名词/景观/考点】: ${userInput.value}`,
-        style: activeGeoType.value
+        taskType: isImageProject.value ? 'image' : 'text',
+        prompt: `类型：${promptTopic.value}，要求：${userInput.value}，风格倾向：${activeStyle.value}`,
+        style: activeStyle.value
       })
     });
 
@@ -542,10 +268,7 @@ const handleGenerate = async () => {
       errorMsg.value = data.error;
     } else {
       result.value = data.result;
-      aiScores.value = parseAiScores(data.result);
       
-      addHistoryRecord();
-
       if (isLoggedIn.value) {
         const nextAuthUses = authUsesCount.value + 1;
         localStorage.setItem('auth_uses', nextAuthUses.toString());
@@ -562,11 +285,11 @@ const handleGenerate = async () => {
   }
 };
 
-const handleApplyTemplate = (payload: { prompt: string; geoType?: string; geoRegion?: string; perspective?: string }) => {
+const handleApplyTemplate = (payload: { prompt: string; style?: string }) => {
   userInput.value = payload.prompt;
-  if (payload.geoType) activeGeoType.value = payload.geoType;
-  if (payload.geoRegion) selectedGeoRegion.value = payload.geoRegion;
-  if (payload.perspective) selectedPerspective.value = payload.perspective;
+  if (payload.style) {
+    activeStyle.value = payload.style;
+  }
   if (inputCardRef.value) {
     inputCardRef.value.scrollIntoView({ behavior: 'smooth', block: 'center' });
   }
@@ -577,14 +300,9 @@ const handleUnlocked = () => {
   handleGenerate();
 };
 
-const resetResult = () => {
-  result.value = '';
-  aiScores.value = null;
-};
-
 const copyText = async () => {
   try {
-    await navigator.clipboard.writeText(displayResultText.value);
+    await navigator.clipboard.writeText(result.value);
     copied.value = true;
     setTimeout(() => {
       copied.value = false;
@@ -593,23 +311,4 @@ const copyText = async () => {
     errorMsg.value = '复制失败，请手动选择复制。';
   }
 };
-
-onMounted(() => {
-  loadHistory();
-});
 </script>
-
-<style scoped>
-.text-link-btn {
-  background: none;
-  border: none;
-  color: #a5b4fc;
-  font-size: 0.775rem;
-  cursor: pointer;
-  transition: color 0.2s ease;
-}
-.text-link-btn:hover {
-  color: var(--text-primary);
-  text-decoration: underline;
-}
-</style>

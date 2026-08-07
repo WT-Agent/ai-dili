@@ -3,7 +3,7 @@
     <div class="ticker-wrapper">
       <div v-for="(item, index) in tickerItems" :key="index" class="ticker-item">
         <span>{{ item.text }}</span>
-        <span style="color: var(--success-color); font-weight: bold;">[解析生成完成]</span>
+        <span style="color: var(--success-color); font-weight: bold;">[生成成功]</span>
       </div>
     </div>
   </div>
@@ -13,10 +13,10 @@
 import { ref } from 'vue';
 
 const tickerItems = ref([
-  { text: '用户 138****9281 完成了喀斯特地貌溶洞与峰林成因机制深度解析' },
-  { text: '用户 177****4019 完成了青藏高原隆升对东亚季风气候影响的考点拆解' },
-  { text: '用户 189****3320 生成了江南水乡聚落分布与古镇水运历史地理报告' },
-  { text: '用户 131****8829 完成了西北荒漠化治理与绿洲农业区位分析' },
-  { text: '用户 153****1290 完成了川藏线318自驾研学路线与沿线地质灾害考察指南' },
+  { text: '用户 135****4829 成功生成了文案' },
+  { text: '用户 173****9238 成功合成了图像' },
+  { text: '用户 189****1102 成功解析了数据' },
+  { text: '用户 130****8739 成功翻译了内容' },
+  { text: '用户 152****2394 成功生成了朋友圈文案' },
 ]);
 </script>
